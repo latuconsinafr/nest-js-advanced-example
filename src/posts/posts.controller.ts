@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common';
@@ -16,27 +17,30 @@ export default class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  getAllPosts() {
-    return this.postsService.findAll();
+  async getAllPosts() {
+    return await this.postsService.findAll();
   }
 
   @Get(':id')
-  getPostById(@Param('id') id: string) {
-    return this.postsService.findById(Number(id));
+  async getPostById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.postsService.findById(id);
   }
 
   @Post()
-  createPost(@Body() post: CreatePostDto) {
-    this.postsService.create(post);
+  async createPost(@Body() post: CreatePostDto) {
+    await this.postsService.create(post);
   }
 
   @Put(':id')
-  updatePost(@Param('id') id: string, @Body() post: UpdatePostDto) {
-    this.postsService.update(Number(id), post);
+  async updatePost(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() post: UpdatePostDto,
+  ) {
+    await this.postsService.update(id, post);
   }
 
   @Delete(':id')
-  deletePost(@Param('id') id: string) {
-    this.postsService.delete(Number(id));
+  async deletePost(@Param('id', new ParseUUIDPipe()) id: string) {
+    await this.postsService.delete(id);
   }
 }

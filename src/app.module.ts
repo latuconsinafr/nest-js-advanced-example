@@ -1,7 +1,46 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { plainToClass } from 'class-transformer';
+import { IsNumber, IsString, validateSync } from 'class-validator';
+import { DbModule } from './db.module';
 import { PostsModule } from './posts/posts.module';
 
+class EnvironmentVariables {
+  @IsString()
+  DB_HOST: string;
+
+  @IsNumber()
+  DB_PORT: number;
+
+  @IsString()
+  DB_USERNAME: string;
+
+  @IsString()
+  DB_PASSWORD: string;
+
+  @IsString()
+  DB_NAME: string;
+}
+
+function validate(config: Record<string, unknown>) {
+  const validatedConfig = plainToClass(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false,
+  });
+
+  if (errors.length > 0) {
+    throw new Error(errors.toString());
+  }
+  return validatedConfig;
+}
+
 @Module({
-  imports: [PostsModule],
+  imports: [
+    ConfigModule.forRoot({ validate, cache: true }),
+    DbModule,
+    PostsModule,
+  ],
 })
 export class AppModule {}
