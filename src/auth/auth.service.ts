@@ -4,6 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
+import { TokenPayload } from './interfaces/token-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -15,8 +16,7 @@ export class AuthService {
   async register(user: RegisterDto): Promise<any> {
     await this.usersService.create({
       ...user,
-      // password: await bcrypt.hash(user.password, 10),
-      password: user.password,
+      password: await bcrypt.hash(user.password, 10),
     });
 
     const { password, ...result }: User | undefined =
@@ -25,7 +25,7 @@ export class AuthService {
     return result;
   }
 
-  async getAuthenticatedUser(userName: string, password: string): Promise<any> {
+  async validateUser(userName: string, password: string): Promise<any> {
     const user: User | undefined = await this.usersService.findByUserName(
       userName,
     );
@@ -43,21 +43,13 @@ export class AuthService {
     return null;
   }
 
-  async validateUser(userName: string, password: string): Promise<any> {
-    const user = await this.usersService.findByUserName(userName);
-    if (user && user.password === password) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
+  async login(user: User) {
+    const payload: TokenPayload = { userId: user.id };
+    const token: string = this.jwtService.sign(payload);
 
-  async login(user: any) {
     return {
-      access_token: this.jwtService.sign({
-        userName: user.userName,
-        sub: user.Id,
-      }),
+      access_token: token,
+      user: user,
     };
   }
 
