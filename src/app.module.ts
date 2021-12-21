@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { plainToClass } from 'class-transformer';
 import { IsNumber, IsString, validateSync } from 'class-validator';
+import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db.module';
 import { PostsModule } from './posts/posts.module';
+import { UsersModule } from './users/users.module';
 
 class EnvironmentVariables {
   @IsString()
@@ -20,6 +22,12 @@ class EnvironmentVariables {
 
   @IsString()
   DB_NAME: string;
+
+  @IsString()
+  JWT_SECRET: string;
+
+  @IsNumber()
+  JWT_EXPIRATION_TIME: number;
 }
 
 function validate(config: Record<string, unknown>) {
@@ -40,6 +48,8 @@ function validate(config: Record<string, unknown>) {
   imports: [
     ConfigModule.forRoot({ validate, cache: true }),
     DbModule,
+    AuthModule,
+    UsersModule,
     PostsModule,
   ],
 })
