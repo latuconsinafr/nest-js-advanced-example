@@ -4,12 +4,12 @@ import {
   Delete,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { IdParams } from 'src/utils/validations/id.params';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -26,7 +26,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getUserById(@Param('id', new ParseUUIDPipe()) id: string) {
+  async getUserById(@Param() { id }: IdParams) {
     return await this.usersService.findById(id);
   }
 
@@ -38,16 +38,13 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  async updateUser(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() user: UpdateUserDto,
-  ) {
+  async updateUser(@Param() { id }: IdParams, @Body() user: UpdateUserDto) {
     await this.usersService.update(id, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
+  async deleteUser(@Param() { id }: IdParams) {
     await this.usersService.delete(id);
   }
 }

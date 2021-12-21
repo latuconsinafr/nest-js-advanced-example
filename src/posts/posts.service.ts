@@ -1,9 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
+import { PostConflictException } from './exceptions/post-conflict.exception';
+import { PostNotFoundException } from './exceptions/post-not-found.exception';
 
 @Injectable()
 export class PostsService {
@@ -19,7 +21,7 @@ export class PostsService {
     const post: Post | undefined = await this.postsRepository.findOne(id);
 
     if (post === undefined) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new PostNotFoundException(id);
     }
 
     return post;
@@ -35,10 +37,10 @@ export class PostsService {
     );
 
     if (postToUpdate === undefined) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new PostNotFoundException(id);
     }
     if (postToUpdate.id !== id) {
-      throw new HttpException('Post id does not match', HttpStatus.CONFLICT);
+      throw new PostConflictException(id);
     }
 
     await this.postsRepository.update(id, post);
@@ -50,7 +52,7 @@ export class PostsService {
     );
 
     if (postToDelete === undefined) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new PostNotFoundException(id);
     }
 
     await this.postsRepository.delete(id);
