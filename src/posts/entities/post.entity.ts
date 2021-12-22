@@ -10,4 +10,7 @@ export class Post {
 
   @Column('text')
   public content: string;
+
+  @Column({ nullable: true })
+  public category?: string;
 }
