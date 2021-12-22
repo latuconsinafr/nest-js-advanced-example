@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,7 +24,7 @@ export class UsersService {
     const user: User | undefined = await this.usersRepository.findOne(id);
 
     if (user === undefined) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
 
     return user;
@@ -32,7 +36,7 @@ export class UsersService {
     });
 
     if (user === undefined) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
 
     return user;
@@ -47,7 +51,7 @@ export class UsersService {
     });
 
     if (user === undefined) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
 
     return user;
@@ -68,10 +72,10 @@ export class UsersService {
     );
 
     if (userToUpdate === undefined) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
     if (userToUpdate.id !== id) {
-      throw new HttpException('User id does not match', HttpStatus.CONFLICT);
+      throw new ConflictException();
     }
 
     await this.usersRepository.update(id, user);
@@ -83,7 +87,7 @@ export class UsersService {
     );
 
     if (userToDelete === undefined) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
 
     await this.usersRepository.delete(id);

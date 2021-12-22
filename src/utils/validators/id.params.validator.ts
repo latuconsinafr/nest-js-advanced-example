@@ -2,6 +2,6 @@ import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class IdParams {
   @IsNotEmpty()
-  @IsUUID()
+  @IsUUID('4')
   id: string;
 }

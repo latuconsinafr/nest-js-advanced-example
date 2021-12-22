@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 export class UpdateUserDto {
   @IsNotEmpty()
-  @IsUUID()
+  @IsUUID('4')
   id: string;
 
   @IsNotEmpty()

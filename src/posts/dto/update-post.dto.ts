@@ -1,8 +1,15 @@
-import { IsNotEmpty, IsString, IsUUID, MinLength } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  MinLength,
+} from 'class-validator';
 
 export class UpdatePostDto {
   @IsNotEmpty()
-  @IsUUID()
+  @IsUUID('4')
   id: string;
 
   @IsNotEmpty()
@@ -13,4 +20,9 @@ export class UpdatePostDto {
   @IsNotEmpty()
   @IsString()
   content: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsUUID('4', { each: true })
+  categoryIds: string[];
 }

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { plainToClass } from 'class-transformer';
 import { IsNumber, IsString, validateSync } from 'class-validator';
 import { AuthModule } from './auth/auth.module';
+import { CategoriesModule } from './categories/categories.module';
 import { DbModule } from './db.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
@@ -50,6 +51,7 @@ function validate(config: Record<string, unknown>) {
     DbModule,
     AuthModule,
     UsersModule,
+    CategoriesModule,
     PostsModule,
   ],
 })

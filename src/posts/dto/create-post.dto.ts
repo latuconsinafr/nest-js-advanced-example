@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  MinLength,
+} from 'class-validator';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -9,4 +16,9 @@ export class CreatePostDto {
   @IsNotEmpty()
   @IsString()
   content: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsUUID('4', { each: true })
+  categoryIds: string[];
 }
