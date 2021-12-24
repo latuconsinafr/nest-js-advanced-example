@@ -32,17 +32,17 @@ export class CategoriesController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createCategory(@Body() category: CreateCategoryDto) {
-    await this.categoriesService.create(category);
+  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+    await this.categoriesService.create(createCategoryDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateCategory(
     @Param() { id }: IdParams,
-    @Body() category: UpdateCategoryDto,
+    @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    await this.categoriesService.update(id, category);
+    await this.categoriesService.update(id, updateCategoryDto);
   }
 
   @UseGuards(JwtAuthGuard)

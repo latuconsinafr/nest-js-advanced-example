@@ -31,27 +31,35 @@ export class CategoriesService {
     return category;
   }
 
-  async create(category: CreateCategoryDto): Promise<void> {
-    await this.categoriesRepository.save(
-      this.categoriesRepository.create(category),
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+    return await this.categoriesRepository.save(
+      this.categoriesRepository.create(createCategoryDto),
     );
   }
 
-  async update(id: string, category: UpdateCategoryDto): Promise<void> {
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<boolean> {
     const categoryToUpdate: Category | undefined =
       await this.categoriesRepository.findOne(id);
 
     if (categoryToUpdate === undefined) {
       throw new NotFoundException();
     }
-    if (categoryToUpdate.id !== id) {
+    if (categoryToUpdate.id !== updateCategoryDto.id) {
       throw new ConflictException();
     }
 
-    await this.categoriesRepository.update(id, category);
+    const result = await this.categoriesRepository.update(
+      id,
+      updateCategoryDto,
+    );
+
+    return result.affected > 0;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<boolean> {
     const categoryToDelete: Category | undefined =
       await this.categoriesRepository.findOne(id);
 
@@ -59,6 +67,8 @@ export class CategoriesService {
       throw new NotFoundException();
     }
 
-    await this.categoriesRepository.delete(id);
+    const result = await this.categoriesRepository.delete(id);
+
+    return result.affected > 0;
   }
 }

@@ -1,17 +1,22 @@
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { MockType } from 'src/utils/tests/mocks/mock.type';
-import { repositoryMockFactory } from 'src/utils/tests/mocks/repository.mock';
 import { Repository } from 'typeorm';
 import { CategoriesService } from '../categories.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { Category } from '../entities/category.entity';
-import { categoriesStub } from './stubs/categories.stub';
+import { CategoriesMockRepository } from './mocks/categories-mock.repository';
+import {
+  categoryStubId1,
+  categoriesStub,
+  categoryStub1,
+  categoryStubId2,
+} from './stubs/categories.stub';
 
 describe('CategoriesService', () => {
-  let categoriesService: CategoriesService;
-  let categoriesRepository: MockType<Repository<Category>>;
+  let service: CategoriesService;
+  let repository: Repository<Category>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,15 +24,19 @@ describe('CategoriesService', () => {
         CategoriesService,
         {
           provide: getRepositoryToken(Category),
-          useFactory: repositoryMockFactory,
+          useClass: CategoriesMockRepository,
         },
       ],
     }).compile();
 
-    categoriesService = module.get<CategoriesService>(CategoriesService);
-    categoriesRepository = module.get(getRepositoryToken(Category));
+    service = module.get<CategoriesService>(CategoriesService);
+    repository = module.get<Repository<Category>>(getRepositoryToken(Category));
 
     jest.clearAllMocks();
+  });
+
+  test('it should be defined', () => {
+    expect(service).toBeDefined();
   });
 
   describe('findAll', () => {
@@ -35,110 +44,279 @@ describe('CategoriesService', () => {
       let categories: Category[];
 
       beforeEach(async () => {
-        categoriesRepository.find.mockReturnValue([categoriesStub()]);
-        categories = await categoriesService.findAll();
+        jest.spyOn(repository, 'find').mockResolvedValue(categoriesStub());
+        categories = await service.findAll();
       });
 
-      test('then it should call categoriesRepository', () => {
-        expect(categoriesRepository.find).toHaveBeenCalled();
+      test('it should call categoriesRepository find method', () => {
+        expect(repository.find).toBeCalled();
       });
-
-      test('then it should return categories', () => {
-        expect(categories).toEqual([categoriesStub()]);
+      test('it should return an array of categories', () => {
+        expect(categories).toEqual(categoriesStub());
       });
     });
   });
 
   describe('findById', () => {
-    describe('when findById is called', () => {
+    describe('when findById is called with non-existing Id', () => {
       let category: Category;
+      let error: any;
 
       beforeEach(async () => {
-        categoriesRepository.findOne.mockReturnValue(categoriesStub());
-        category = await categoriesService.findById(categoriesStub().id);
+        jest.spyOn(repository, 'findOne').mockResolvedValue(undefined);
+
+        try {
+          category = await service.findById(categoryStubId1());
+        } catch (e) {
+          error = e;
+        }
       });
 
-      test('then it should call categoriesRepository', () => {
-        expect(categoriesRepository.findOne).toBeCalledWith(
-          categoriesStub().id,
-        );
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should throws a not found exception', () => {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect(category).toBeUndefined();
+      });
+    });
+
+    describe('when findById is called with existing Id', () => {
+      let category: Category;
+      let error: any;
+
+      beforeEach(async () => {
+        jest.spyOn(repository, 'findOne').mockResolvedValue(categoryStub1());
+
+        try {
+          category = await service.findById(categoryStubId1());
+        } catch (e) {
+          error = e;
+        }
       });
 
-      test('then it should return a category', () => {
-        expect(category).toEqual(categoriesStub());
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should return a category', () => {
+        expect(error).toBeUndefined();
+        expect(category).toEqual(categoryStub1());
       });
     });
   });
 
   describe('create', () => {
     describe('when create is called', () => {
-      let createCategoryDto: CreateCategoryDto;
+      let createdCategory: Category;
+      let dto: CreateCategoryDto;
 
       beforeEach(async () => {
-        createCategoryDto = {
-          name: categoriesStub().name,
+        dto = {
+          name: 'New Category',
         };
 
-        categoriesRepository.create.mockReturnValue(() => Promise.resolve());
-        await categoriesService.create(createCategoryDto);
+        jest.spyOn(repository, 'create').mockReturnValue(categoryStub1());
+        jest.spyOn(repository, 'save').mockResolvedValue(categoryStub1());
+
+        createdCategory = await service.create(dto);
       });
 
-      test('then it should call categoriesRepository', () => {
-        expect(categoriesRepository.create).toBeCalledWith(createCategoryDto);
+      test('it should call categoriesRepository create method', () => {
+        expect(repository.create).toBeCalledWith(dto);
       });
-
-      test('then it should return a void promise', async () => {
-        await expect(
-          categoriesService.create(createCategoryDto),
-        ).resolves.not.toThrow();
+      test('it should call categoriesRepository save method', () => {
+        expect(repository.save).toBeCalledWith(categoryStub1());
+      });
+      test('it should return a category', () => {
+        expect(createdCategory).toEqual(categoryStub1());
       });
     });
   });
 
   describe('update', () => {
-    describe('when update is called', () => {
-      let updateCategoryDto: UpdateCategoryDto;
+    describe('when update is called with non existing Id', () => {
+      let result: boolean;
+      let dto: UpdateCategoryDto;
+      let error: any;
 
       beforeEach(async () => {
-        updateCategoryDto = {
-          id: categoriesStub().id,
-          name: categoriesStub().name,
+        dto = {
+          id: categoryStubId1(),
+          name: 'New Category',
         };
 
-        categoriesRepository.update.mockReturnValue(() => Promise.resolve());
-        await categoriesService.update(categoriesStub().id, updateCategoryDto);
+        jest.spyOn(repository, 'findOne').mockResolvedValue(undefined);
+
+        try {
+          result = await service.update(categoryStubId1(), dto);
+        } catch (e) {
+          error = e;
+        }
       });
 
-      test('then it should call categoriesRepository', () => {
-        expect(categoriesRepository.update).toBeCalledWith(
-          categoriesStub().id,
-          updateCategoryDto,
-        );
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should throws a not found exception', () => {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('when update is called with existing Id but conflicted', () => {
+      let result: boolean;
+      let dto: UpdateCategoryDto;
+      let error: any;
+
+      beforeEach(async () => {
+        dto = {
+          id: categoryStubId2(),
+          name: 'New Category',
+        };
+
+        jest.spyOn(repository, 'findOne').mockResolvedValue(categoryStub1());
+
+        try {
+          result = await service.update(categoryStubId1(), dto);
+        } catch (e) {
+          error = e;
+        }
       });
 
-      test('then it should return a void promise', async () => {
-        await expect(
-          categoriesService.update(categoriesStub().id, updateCategoryDto),
-        ).resolves.not.toThrow();
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should throws a conflict exception', () => {
+        expect(error).toBeInstanceOf(ConflictException);
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('when update is called with existing Id and not conflicted but nothing updated', () => {
+      let result: boolean;
+      let dto: UpdateCategoryDto;
+      let error: any;
+
+      beforeEach(async () => {
+        dto = {
+          id: categoryStubId1(),
+          name: categoryStub1().name,
+        };
+
+        jest.spyOn(repository, 'findOne').mockResolvedValue(categoryStub1());
+        jest.spyOn(repository, 'update').mockResolvedValue({
+          affected: 0,
+          raw: categoryStub1(),
+          generatedMaps: undefined,
+        });
+
+        try {
+          result = await service.update(categoryStubId1(), dto);
+        } catch (e) {
+          error = e;
+        }
+      });
+
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should call categoriesRepository update method', () => {
+        expect(repository.update).toBeCalledWith(categoryStubId1(), dto);
+      });
+      test('it should return false', () => {
+        expect(error).toBeUndefined();
+        expect(result).toBeFalsy();
+      });
+    });
+
+    describe('when update is called with existing Id and not conflicted and also being updated', () => {
+      let result: boolean;
+      let dto: UpdateCategoryDto;
+      let error: any;
+
+      beforeEach(async () => {
+        dto = {
+          id: categoryStubId1(),
+          name: 'New Category',
+        };
+
+        jest.spyOn(repository, 'findOne').mockResolvedValue(categoryStub1());
+        jest.spyOn(repository, 'update').mockResolvedValue({
+          affected: 1,
+          raw: categoryStub1(),
+          generatedMaps: undefined,
+        });
+
+        try {
+          result = await service.update(categoryStubId1(), dto);
+        } catch (e) {
+          error = e;
+        }
+      });
+
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should call categoriesRepository update method', () => {
+        expect(repository.update).toBeCalledWith(categoryStubId1(), dto);
+      });
+      test('it should return true', () => {
+        expect(error).toBeUndefined();
+        expect(result).toBeTruthy();
       });
     });
   });
 
   describe('delete', () => {
-    describe('when delete is called', () => {
+    describe('when delete is called with non-existing Id', () => {
+      let result: boolean;
+      let error: any;
+
       beforeEach(async () => {
-        categoriesRepository.delete.mockReturnValue(() => Promise.resolve());
-        await categoriesService.delete(categoriesStub().id);
+        jest.spyOn(repository, 'findOne').mockResolvedValue(undefined);
+
+        try {
+          result = await service.delete(categoryStubId1());
+        } catch (e) {
+          error = e;
+        }
       });
 
-      test('then it should call categoriesRepository', () => {
-        expect(categoriesRepository.delete).toBeCalledWith(categoriesStub().id);
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should throws a not found exception', () => {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('when delete is called with existing Id', () => {
+      let result: boolean;
+      let error: any;
+
+      beforeEach(async () => {
+        jest.spyOn(repository, 'findOne').mockResolvedValue(categoryStub1());
+        jest
+          .spyOn(repository, 'delete')
+          .mockResolvedValue({ affected: 1, raw: undefined });
+
+        try {
+          result = await service.delete(categoryStubId1());
+        } catch (e) {
+          error = e;
+        }
       });
 
-      test('then it should return a void promise', async () => {
-        await expect(
-          categoriesService.delete(categoriesStub().id),
-        ).resolves.not.toThrow();
+      test('it should call categoriesRepository findOne method', () => {
+        expect(repository.findOne).toBeCalledWith(categoryStubId1());
+      });
+      test('it should call categoriesRepository delete method', () => {
+        expect(repository.delete).toBeCalledWith(categoryStubId1());
+      });
+      test('it should return true', () => {
+        expect(error).toBeUndefined();
+        expect(result).toBeTruthy();
       });
     });
   });
