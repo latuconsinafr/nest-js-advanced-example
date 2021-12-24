@@ -11,15 +11,15 @@ export class CategoriesMockRepository {
     return;
   }
 
-  save(): Promise<void> {
+  async save(): Promise<void> {
     return;
   }
 
-  update(): Promise<void> {
+  async update(): Promise<void> {
     return;
   }
 
-  delete(): Promise<void> {
+  async delete(): Promise<void> {
     return;
   }
 }

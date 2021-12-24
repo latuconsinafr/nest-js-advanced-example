@@ -127,7 +127,7 @@ describe('CategoriesService', () => {
       test('it should call categoriesRepository save method', () => {
         expect(repository.save).toBeCalledWith(categoryStub1());
       });
-      test('it should return a category', () => {
+      test('it should return a created category', () => {
         expect(createdCategory).toEqual(categoryStub1());
       });
     });
@@ -192,44 +192,7 @@ describe('CategoriesService', () => {
       });
     });
 
-    describe('when update is called with existing Id and not conflicted but nothing updated', () => {
-      let result: boolean;
-      let dto: UpdateCategoryDto;
-      let error: any;
-
-      beforeEach(async () => {
-        dto = {
-          id: categoryStubId1(),
-          name: categoryStub1().name,
-        };
-
-        jest.spyOn(repository, 'findOne').mockResolvedValue(categoryStub1());
-        jest.spyOn(repository, 'update').mockResolvedValue({
-          affected: 0,
-          raw: categoryStub1(),
-          generatedMaps: undefined,
-        });
-
-        try {
-          result = await service.update(categoryStubId1(), dto);
-        } catch (e) {
-          error = e;
-        }
-      });
-
-      test('it should call categoriesRepository findOne method', () => {
-        expect(repository.findOne).toBeCalledWith(categoryStubId1());
-      });
-      test('it should call categoriesRepository update method', () => {
-        expect(repository.update).toBeCalledWith(categoryStubId1(), dto);
-      });
-      test('it should return false', () => {
-        expect(error).toBeUndefined();
-        expect(result).toBeFalsy();
-      });
-    });
-
-    describe('when update is called with existing Id and not conflicted and also being updated', () => {
+    describe('when update is called with existing Id and not conflicted', () => {
       let result: boolean;
       let dto: UpdateCategoryDto;
       let error: any;

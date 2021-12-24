@@ -33,18 +33,18 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async createUser(@Body() user: CreateUserDto) {
-    await this.usersService.create(user);
+    return await this.usersService.create(user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateUser(@Param() { id }: IdParams, @Body() user: UpdateUserDto) {
-    await this.usersService.update(id, user);
+    return await this.usersService.update(id, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteUser(@Param() { id }: IdParams) {
-    await this.usersService.delete(id);
+    return await this.usersService.delete(id);
   }
 }

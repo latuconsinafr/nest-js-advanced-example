@@ -35,17 +35,19 @@ export class PostsService {
     return post;
   }
 
-  async create(post: CreatePostDto, user: User): Promise<void> {
-    await this.postsRepository.save(
+  async create(createPostDto: CreatePostDto, user: User): Promise<Post> {
+    return await this.postsRepository.save(
       this.postsRepository.create({
-        ...post,
+        ...createPostDto,
         author: user,
-        categories: await this.categoriesRepository.findByIds(post.categoryIds),
+        categories: await this.categoriesRepository.findByIds(
+          createPostDto.categoryIds,
+        ),
       }),
     );
   }
 
-  async update(id: string, post: UpdatePostDto): Promise<void> {
+  async update(id: string, updatePostDto: UpdatePostDto): Promise<boolean> {
     const postToUpdate: Post | undefined = await this.postsRepository.findOne(
       id,
     );
@@ -53,14 +55,16 @@ export class PostsService {
     if (postToUpdate === undefined) {
       throw new PostNotFoundException(id);
     }
-    if (postToUpdate.id !== id) {
+    if (postToUpdate.id !== updatePostDto.id) {
       throw new PostConflictException(id);
     }
 
-    await this.postsRepository.update(id, post);
+    await this.postsRepository.update(id, updatePostDto);
+
+    return true;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<boolean> {
     const postToDelete: Post | undefined = await this.postsRepository.findOne(
       id,
     );
@@ -70,5 +74,7 @@ export class PostsService {
     }
 
     await this.postsRepository.delete(id);
+
+    return true;
   }
 }

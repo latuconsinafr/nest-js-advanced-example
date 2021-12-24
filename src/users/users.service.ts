@@ -57,16 +57,16 @@ export class UsersService {
     return user;
   }
 
-  async create(user: CreateUserDto): Promise<void> {
-    await this.usersRepository.save(
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    return await this.usersRepository.save(
       this.usersRepository.create({
-        ...user,
-        password: await bcrypt.hash(user.password, 10),
+        ...createUserDto,
+        password: await bcrypt.hash(createUserDto.password, 10),
       }),
     );
   }
 
-  async update(id: string, user: UpdateUserDto): Promise<void> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<boolean> {
     const userToUpdate: User | undefined = await this.usersRepository.findOne(
       id,
     );
@@ -74,14 +74,16 @@ export class UsersService {
     if (userToUpdate === undefined) {
       throw new NotFoundException();
     }
-    if (userToUpdate.id !== id) {
+    if (userToUpdate.id !== updateUserDto.id) {
       throw new ConflictException();
     }
 
-    await this.usersRepository.update(id, user);
+    await this.usersRepository.update(id, updateUserDto);
+
+    return true;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<boolean> {
     const userToDelete: User | undefined = await this.usersRepository.findOne(
       id,
     );
@@ -91,5 +93,7 @@ export class UsersService {
     }
 
     await this.usersRepository.delete(id);
+
+    return true;
   }
 }

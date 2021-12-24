@@ -51,12 +51,9 @@ export class CategoriesService {
       throw new ConflictException();
     }
 
-    const result = await this.categoriesRepository.update(
-      id,
-      updateCategoryDto,
-    );
+    await this.categoriesRepository.update(id, updateCategoryDto);
 
-    return result.affected > 0;
+    return true;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -67,8 +64,8 @@ export class CategoriesService {
       throw new NotFoundException();
     }
 
-    const result = await this.categoriesRepository.delete(id);
+    await this.categoriesRepository.delete(id);
 
-    return result.affected > 0;
+    return true;
   }
 }

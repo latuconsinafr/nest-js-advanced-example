@@ -14,18 +14,11 @@ export class AuthService {
   ) {}
 
   async register(user: RegisterDto): Promise<any> {
-    await this.usersService.create(user);
-
-    const registeredUser: User | undefined =
-      await this.usersService.findByUserName(user.userName);
-
-    return registeredUser;
+    return await this.usersService.create(user);
   }
 
   async validateUser(userName: string, password: string): Promise<any> {
-    const user: User | undefined = await this.usersService.findByUserName(
-      userName,
-    );
+    const user: User = await this.usersService.findByUserName(userName);
     const isPasswordMatching: boolean = await this.verifyPassword(
       password,
       user.password,

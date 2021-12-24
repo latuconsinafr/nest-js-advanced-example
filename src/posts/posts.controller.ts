@@ -38,18 +38,18 @@ export class PostsController {
     @Body() post: CreatePostDto,
     @Req() request: RequestWithUser,
   ) {
-    await this.postsService.create(post, request.user);
+    return await this.postsService.create(post, request.user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updatePost(@Param() { id }: IdParams, @Body() post: UpdatePostDto) {
-    await this.postsService.update(id, post);
+    return await this.postsService.update(id, post);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deletePost(@Param() { id }: IdParams) {
-    await this.postsService.delete(id);
+    return await this.postsService.delete(id);
   }
 }
