@@ -8,11 +8,11 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { IdParams } from 'src/utils/validators/id.params.validator';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoriesService } from './categories.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { IdParams } from '../utils/validators/id.params.validator';
 
 @Controller('categories')
 export class CategoriesController {

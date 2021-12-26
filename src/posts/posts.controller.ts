@@ -9,9 +9,9 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RequestWithUser } from 'src/auth/interfaces/request-with-user.interface';
-import { IdParams } from 'src/utils/validators/id.params.validator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
+import { IdParams } from '../utils/validators/id.params.validator';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';

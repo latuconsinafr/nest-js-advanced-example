@@ -1,4 +1,4 @@
-import { Category } from 'src/categories/entities/category.entity';
+import { Category } from '../../entities/category.entity';
 
 export const categoryStubId1 = (): string => {
   return 'fff7ca0c-1fb8-4750-96fa-a3bc73a49566';

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Category } from 'src/categories/entities/category.entity';
-import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
+import { Category } from '../categories/entities/category.entity';
+import { User } from '../users/entities/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';

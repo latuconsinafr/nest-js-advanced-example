@@ -1,11 +1,9 @@
-import { NotFoundException } from '@nestjs/common';
-
 export class CategoriesMockService {
   async findAll(): Promise<void> {
     return;
   }
 
-  async findById(): Promise<void | NotFoundException> {
+  async findById(): Promise<void> {
     return;
   }
 
