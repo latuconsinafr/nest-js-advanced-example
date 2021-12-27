@@ -18,6 +18,10 @@ export class UpdatePostDto {
   title: string;
 
   @IsNotEmpty()
+  @IsString({ each: true })
+  subTitles: string[];
+
+  @IsNotEmpty()
   @IsString()
   content: string;
 

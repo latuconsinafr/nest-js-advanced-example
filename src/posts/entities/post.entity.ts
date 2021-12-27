@@ -19,6 +19,9 @@ export class Post {
   @Column()
   public title: string;
 
+  @Column('text', { array: true })
+  public subTitles: string[];
+
   @Column('text')
   public content: string;
 

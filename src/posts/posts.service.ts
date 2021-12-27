@@ -23,6 +23,13 @@ export class PostsService {
     });
   }
 
+  async findBySubTitle(subTitle: string): Promise<Post[]> {
+    return await this.postsRepository.query(
+      'SELECT * from post WHERE $1 = ANY(subTitles)',
+      [subTitle],
+    );
+  }
+
   async findById(id: string): Promise<Post> {
     const post: Post | undefined = await this.postsRepository.findOne(id, {
       relations: ['author', 'categories'],

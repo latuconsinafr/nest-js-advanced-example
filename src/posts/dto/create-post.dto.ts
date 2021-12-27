@@ -14,6 +14,10 @@ export class CreatePostDto {
   title: string;
 
   @IsNotEmpty()
+  @IsString({ each: true })
+  subTitles: string[];
+
+  @IsNotEmpty()
   @IsString()
   content: string;
 
