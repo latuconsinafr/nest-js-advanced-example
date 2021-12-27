@@ -30,6 +30,28 @@ export class UsersService {
     return user;
   }
 
+  async findByIdAndRefreshToken(
+    id: string,
+    refreshToken: string,
+  ): Promise<User> {
+    const user = await this.findById(id);
+
+    if (typeof user.refreshToken === undefined || !user.refreshToken) {
+      throw new NotFoundException();
+    }
+
+    const isTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+
+    if (!isTokenMatching) {
+      throw new NotFoundException();
+    }
+
+    return user;
+  }
+
   async findByUserName(userName: string): Promise<User> {
     const user: User | undefined = await this.usersRepository.findOne({
       userName,
@@ -83,6 +105,15 @@ export class UsersService {
     return true;
   }
 
+  async setRefreshToken(id: string, token: string): Promise<boolean> {
+    const refreshToken = await bcrypt.hash(token, 10);
+    await this.usersRepository.update(id, {
+      refreshToken,
+    });
+
+    return true;
+  }
+
   async delete(id: string): Promise<boolean> {
     const userToDelete: User | undefined = await this.usersRepository.findOne(
       id,
@@ -93,6 +124,14 @@ export class UsersService {
     }
 
     await this.usersRepository.delete(id);
+
+    return true;
+  }
+
+  async deleteRefreshToken(id: string): Promise<boolean> {
+    await this.usersRepository.update(id, {
+      refreshToken: null,
+    });
 
     return true;
   }

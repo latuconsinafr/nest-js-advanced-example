@@ -20,6 +20,10 @@ export class User {
   @Column()
   public password: string;
 
+  @Exclude()
+  @Column({ nullable: true })
+  public refreshToken?: string;
+
   @OneToMany(() => Post, (post: Post) => post.author)
   public posts: Post[];
 }

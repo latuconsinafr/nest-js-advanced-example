@@ -25,10 +25,16 @@ class EnvironmentVariables {
   DB_NAME: string;
 
   @IsString()
-  JWT_SECRET: string;
+  JWT_ACCESS_TOKEN_SECRET: string;
 
   @IsNumber()
-  JWT_EXPIRATION_TIME: number;
+  JWT_ACCESS_TOKEN_EXPIRATION_TIME: number;
+
+  @IsString()
+  JWT_REFRESH_TOKEN_SECRET: string;
+
+  @IsNumber()
+  JWT_REFRESH_TOKEN_EXPIRATION_TIME: number;
 }
 
 function validate(config: Record<string, unknown>) {

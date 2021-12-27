@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
   Request,
@@ -8,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RequestWithUser } from './interfaces/request-with-user.interface';
 
@@ -24,6 +27,25 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() request: RequestWithUser) {
-    return this.authService.login(request.user);
+    return await this.authService.login(request.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async authenticate(@Request() request: RequestWithUser) {
+    return request.user;
+  }
+
+  @UseGuards(JwtRefreshGuard)
+  @Get('refresh')
+  async refresh(@Request() request: RequestWithUser) {
+    return await this.authService.refresh(request.user);
+  }
+
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Request() request: RequestWithUser) {
+    return await this.authService.logout(request.user);
   }
 }
