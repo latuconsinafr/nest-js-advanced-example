@@ -6,10 +6,12 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { IdParams } from '../utils/validators/id.params.validator';
+import { IdParams } from '../utils/params/id.params';
+import { PaginationParams } from '../utils/params/pagination.params';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -20,8 +22,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getAllUsers() {
-    return await this.usersService.findAll();
+  async getAllUsers(
+    // @Query('search') search: string,
+    @Query() { offset, limit }: PaginationParams,
+  ) {
+    return await this.usersService.findAll(offset, limit);
   }
 
   @UseGuards(JwtAuthGuard)

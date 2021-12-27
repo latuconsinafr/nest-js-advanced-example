@@ -16,8 +16,19 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+  async findAll(offset?: number, limit?: number): Promise<any> {
+    const [items, count] = await this.usersRepository.findAndCount({
+      order: {
+        id: 'ASC',
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    return {
+      items,
+      count,
+    };
   }
 
   async findById(id: string): Promise<User> {
